@@ -1,0 +1,1 @@
+/home/jackstone/.openclaw/workspace/auto_upload_workflow.sh

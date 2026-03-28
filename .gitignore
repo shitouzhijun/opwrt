@@ -1,0 +1,10 @@
+# OpenClaw internal/runtime artifacts
+.openclaw/
+.clawhub/
+skills/
+opwrt/
+
+# Temp/log files
+*.log
+*.tmp
+*.swp
