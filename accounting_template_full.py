@@ -291,4 +291,257 @@ def create_professional_accounting_template():
     
     asset_headers = ["资产项目", "金额", "备注"]
     for col, header in enumerate(asset_headers, 1):
-        cell = balance_sheet.cell(row=
+        cell = balance_sheet.cell(row=4, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill('solid', start_color='E2EFDA')
+    
+    # 负债表头
+    balance_sheet['D3'] = "负债"
+    balance_sheet['D3'].font = Font(name='微软雅黑', size=12, bold=True, color='FFFFFF')
+    balance_sheet['D3'].fill = PatternFill('solid', start_color='C00000')
+    balance_sheet.merge_cells('D3:F3')
+    
+    liability_headers = ["负债项目", "金额", "备注"]
+    for col, header in enumerate(liability_headers, 4):
+        cell = balance_sheet.cell(row=4, column=col)
+        cell.value = header
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill('solid', start_color='FCE4D6')
+    
+    # 示例资产数据
+    assets = [
+        ["现金", 5000, "日常备用金"],
+        ["银行存款", 50000, "主要储蓄账户"],
+        ["投资账户", 30000, "股票基金投资"],
+        ["公积金", 80000, "住房公积金"],
+        ["其他资产", 5000, "贵重物品"]
+    ]
+    
+    for row_idx, (item, amount, note) in enumerate(assets, 5):
+        balance_sheet.cell(row=row_idx, column=1, value=item)
+        balance_sheet.cell(row=row_idx, column=2, value=amount)
+        balance_sheet.cell(row=row_idx, column=2).number_format = '#,##0.00'
+        balance_sheet.cell(row=row_idx, column=3, value=note)
+    
+    # 示例负债数据
+    liabilities = [
+        ["信用卡欠款", 5000, "本月待还"],
+        ["房贷", 300000, "房屋贷款"],
+        ["车贷", 80000, "汽车贷款"],
+        ["其他负债", 2000, "个人借款"]
+    ]
+    
+    for row_idx, (item, amount, note) in enumerate(liabilities, 5):
+        balance_sheet.cell(row=row_idx, column=4, value=item)
+        balance_sheet.cell(row=row_idx, column=5, value=amount)
+        balance_sheet.cell(row=row_idx, column=5).number_format = '#,##0.00'
+        balance_sheet.cell(row=row_idx, column=6, value=note)
+    
+    # 计算总计
+    asset_total_row = len(assets) + 5
+    liability_total_row = len(liabilities) + 5
+    
+    # 资产总计
+    balance_sheet.cell(row=asset_total_row, column=1, value="资产总计")
+    balance_sheet.cell(row=asset_total_row, column=1).font = Font(bold=True)
+    balance_sheet.cell(row=asset_total_row, column=2, value=f'=SUM(B5:B{asset_total_row-1})')
+    balance_sheet.cell(row=asset_total_row, column=2).number_format = '#,##0.00'
+    balance_sheet.cell(row=asset_total_row, column=2).font = Font(bold=True)
+    
+    # 负债总计
+    balance_sheet.cell(row=liability_total_row, column=4, value="负债总计")
+    balance_sheet.cell(row=liability_total_row, column=4).font = Font(bold=True)
+    balance_sheet.cell(row=liability_total_row, column=5, value=f'=SUM(E5:E{liability_total_row-1})')
+    balance_sheet.cell(row=liability_total_row, column=5).number_format = '#,##0.00'
+    balance_sheet.cell(row=liability_total_row, column=5).font = Font(bold=True)
+    
+    # 净资产
+    net_worth_row = max(asset_total_row, liability_total_row) + 1
+    balance_sheet.cell(row=net_worth_row, column=1, value="净资产")
+    balance_sheet.cell(row=net_worth_row, column=1).font = Font(bold=True, size=12)
+    balance_sheet.cell(row=net_worth_row, column=2, value=f'=B{asset_total_row}-E{liability_total_row}')
+    balance_sheet.cell(row=net_worth_row, column=2).number_format = '#,##0.00'
+    balance_sheet.cell(row=net_worth_row, column=2).font = Font(bold=True, size=12, color='00B050')
+    
+    # ==================== 6. 月度报表工作表 ====================
+    monthly_report = wb.create_sheet("月度报表")
+    
+    monthly_report['A1'] = "月度收支报表"
+    monthly_report['A1'].font = Font(name='微软雅黑', size=14, bold=True, color='2E75B6')
+    monthly_report.merge_cells('A1:G1')
+    
+    # 月份选择
+    monthly_report['A3'] = "选择月份:"
+    monthly_report['A3'].font = Font(bold=True)
+    
+    # 创建月份下拉列表数据
+    months = wb.create_sheet("_月份数据")
+    for i in range(1, 13):
+        months.cell(row=i, column=1, value=f"{i}月")
+    wb._sheets.remove(months)  # 隐藏这个工作表
+    
+    # 表头
+    report_headers = ["分类", "预算", "实际", "差额", "预算完成率", "趋势", "建议"]
+    for col, header in enumerate(report_headers, 1):
+        cell = monthly_report.cell(row=5, column=col)
+        cell.value = header
+        cell.font = Font(name='微软雅黑', size=11, bold=True, color='FFFFFF')
+        cell.fill = PatternFill('solid', start_color='4472C4')
+        cell.alignment = Alignment(horizontal='center')
+    
+    # 设置列宽
+    monthly_report.column_dimensions['A'].width = 20
+    monthly_report.column_dimensions['B'].width = 12
+    monthly_report.column_dimensions['C'].width = 12
+    monthly_report.column_dimensions['D'].width = 12
+    monthly_report.column_dimensions['E'].width = 15
+    monthly_report.column_dimensions['F'].width = 15
+    monthly_report.column_dimensions['G'].width = 25
+    
+    # ==================== 7. 年度汇总工作表 ====================
+    annual_summary = wb.create_sheet("年度汇总")
+    
+    annual_summary['A1'] = "年度收支汇总"
+    annual_summary['A1'].font = Font(name='微软雅黑', size=14, bold=True, color='2E75B6')
+    annual_summary.merge_cells('A1:N1')
+    
+    # 月份表头
+    months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月", "年度总计"]
+    for col, month in enumerate(months, 2):
+        cell = annual_summary.cell(row=3, column=col)
+        cell.value = month
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal='center')
+        cell.fill = PatternFill('solid', start_color='D9E1F2')
+    
+    # 收入行
+    annual_summary['A4'] = "收入"
+    annual_summary['A4'].font = Font(bold=True, color='00B050')
+    
+    # 支出行
+    annual_summary['A5'] = "支出"
+    annual_summary['A5'].font = Font(bold=True, color='FF0000')
+    
+    # 结余行
+    annual_summary['A6'] = "结余"
+    annual_summary['A6'].font = Font(bold=True)
+    
+    # 设置公式（示例公式，实际需要更复杂的公式）
+    for month in range(1, 13):
+        col = month + 1
+        # 收入公式
+        income_formula = f'=SUMIFS(流水账!F:F,流水账!E:E,"收入",流水账!B:B,">="&DATE(YEAR(TODAY()),{month},1),流水账!B:B,"<="&EOMONTH(DATE(YEAR(TODAY()),{month},1),0))'
+        annual_summary.cell(row=4, column=col, value=income_formula)
+        annual_summary.cell(row=4, column=col).number_format = '#,##0.00'
+        
+        # 支出公式
+        expense_formula = f'=SUMIFS(流水账!F:F,流水账!E:E,"支出",流水账!B:B,">="&DATE(YEAR(TODAY()),{month},1),流水账!B:B,"<="&EOMONTH(DATE(YEAR(TODAY()),{month},1),0))'
+        annual_summary.cell(row=5, column=col, value=expense_formula)
+        annual_summary.cell(row=5, column=col).number_format = '#,##0.00'
+        
+        # 结余公式
+        balance_formula = f'=B{4+month-1}-B{5+month-1}'
+        annual_summary.cell(row=6, column=col, value=balance_formula)
+        annual_summary.cell(row=6, column=col).number_format = '#,##0.00'
+    
+    # 年度总计列
+    total_col = 14
+    annual_summary.cell(row=4, column=total_col, value='=SUM(B4:M4)')
+    annual_summary.cell(row=4, column=total_col).number_format = '#,##0.00'
+    annual_summary.cell(row=4, column=total_col).font = Font(bold=True, color='00B050')
+    
+    annual_summary.cell(row=5, column=total_col, value='=SUM(B5:M5)')
+    annual_summary.cell(row=5, column=total_col).number_format = '#,##0.00'
+    annual_summary.cell(row=5, column=total_col).font = Font(bold=True, color='FF0000')
+    
+    annual_summary.cell(row=6, column=total_col, value='=SUM(B6:M6)')
+    annual_summary.cell(row=6, column=total_col).number_format = '#,##0.00'
+    annual_summary.cell(row=6, column=total_col).font = Font(bold=True)
+    
+    # ==================== 8. 数据验证和说明 ====================
+    instructions = wb.create_sheet("使用说明")
+    
+    instructions['A1'] = "专业记账模板使用说明"
+    instructions['A1'].font = Font(name='微软雅黑', size=16, bold=True, color='2E75B6')
+    instructions.merge_cells('A1:D1')
+    
+    sections = [
+        ("📊 模板结构", [
+            "1. 仪表板: 关键指标概览",
+            "2. 流水账: 记录每日收支明细",
+            "3. 预算管理: 设置和跟踪预算",
+            "4. 分类设置: 自定义收支分类",
+            "5. 资产负债表: 记录资产和负债",
+            "6. 月度报表: 月度分析报告",
+            "7. 年度汇总: 全年数据汇总"
+        ]),
+        ("📝 使用步骤", [
+            "1. 在'分类设置'中自定义分类",
+            "2. 在'流水账'中记录每日收支",
+            "3. 在'预算管理'中设置预算",
+            "4. 在'资产负债表'中更新资产",
+            "5. 查看'仪表板'了解财务状况",
+            "6. 使用'月度报表'进行分析"
+        ]),
+        ("🔧 功能特点", [
+            "• 自动计算收支结余",
+            "• 预算执行情况跟踪",
+            "• 多维度数据分析",
+            "• 可视化图表展示",
+            "• 数据验证确保准确性",
+            "• 支持自定义分类"
+        ]),
+        ("💡 使用技巧", [
+            "• 每日及时记录收支",
+            "• 定期核对银行账单",
+            "• 设置合理的预算目标",
+            "• 利用分类分析消费习惯",
+            "• 定期备份Excel文件",
+            "• 根据实际情况调整分类"
+        ])
+    ]
+    
+    current_row = 3
+    for title, items in sections:
+        # 标题
+        instructions.cell(row=current_row, column=1, value=title)
+        instructions.cell(row=current_row, column=1).font = Font(name='微软雅黑', size=12, bold=True, color='4472C4')
+        current_row += 1
+        
+        # 内容
+        for item in items:
+            instructions.cell(row=current_row, column=1, value=item)
+            instructions.cell(row=current_row, column=1).font = Font(name='微软雅黑', size=10)
+            current_row += 1
+        
+        current_row += 1  # 空行
+    
+    # 设置列宽
+    instructions.column_dimensions['A'].width = 50
+    
+    # ==================== 保存文件 ====================
+    # 重新排序工作表
+    sheet_order = ["仪表板", "流水账", "预算管理", "分类设置", "资产负债表", "月度报表", "年度汇总", "使用说明"]
+    wb._sheets.sort(key=lambda ws: sheet_order.index(ws.title) if ws.title in sheet_order else len(sheet_order))
+    
+    # 保存文件
+    filename = f"专业记账模板_{datetime.now().strftime('%Y%m%d')}.xlsx"
+    wb.save(filename)
+    
+    print(f"✅ 专业记账模板已创建: {filename}")
+    print(f"📊 包含工作表: {', '.join(sheet_order)}")
+    print(f"📁 文件大小: 约{len(open(filename, 'rb').read()) // 1024} KB")
+    
+    return filename
+
+if __name__ == "__main__":
+    try:
+        filename = create_professional_accounting_template()
+        print("\n🎉 模板创建成功！")
+        print("💡 接下来请运行公式重计算脚本:")
+        print(f"   python scripts/recalc.py {filename}")
+    except Exception as e:
+        print(f"❌ 创建模板时出错: {e}")
+        import traceback
+        traceback.print_exc()
